@@ -1,0 +1,38 @@
+# Dockerfile Directives: USER and RUN
+
+ - Dockerfile should always start with "FROM" command in starting of the file after the comment
+ - If you need to run the container with a different user, you should create and add user during the build as below
+	RUN useradd -ms /bin/bash user
+	USER user
+	
+	- RUN command is used for directing the build to create user
+	- USER command will ensure the default container login will happen the user defined
+-  To build the docker images, there should be Dockerfile with above details and run the below build command
+	- docker build -t "<image_name:tags>" . # where . is the directory of the Dockerfile.
+-  However, if you need to login to container with even though the default user is something else, we can use exec with root and enforce login to root
+	docker exec -u 0 -it <running container_name> /bin/bash
+**** Ref Dockerfile : practise/2_Dockerfile_Builds_and_Network_Configuration/Builds/RunAsUser/Dockerfile 
+
+# Dockerfile Directives: RUN Order of Execution
+
+  - "RUN" command is used for actaully execting the command at build time of the image 
+  - Ordering the command really matter when build an image
+
+	RUN useradd -ms /bin/bash user
+	USER user
+
+	RUN echo "Export 192.168.0.0/24" >> /etc/exports.list
+
+# RUN command is used to execute the the command at runtime and becomes part of the image
+  - Considering the above case, if you are trying to create an file after user is created. Then build will fail with below message
+	Step 5/5 : RUN echo "Export 192.168.0.0/24" >> /etc/exports.list
+	 ---> Running in a4c1e8060af4
+	/bin/sh: /etc/exports.list: Permission denied
+  - reason for this failure is due to order the file getting created. Since this is run after user creation, and regular user doesn't have access to write into /etc/ the above build is failed
+  - So ordering is very important. To fix, we need to move the file creation before user creation, so file creation will happen through root account
+  
+        RUN echo "Export 192.168.0.0/24" >> /etc/exports.list 
+ 
+        RUN useradd -ms /bin/bash user
+        USER user
+
