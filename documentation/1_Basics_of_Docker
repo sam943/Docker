@@ -1,0 +1,93 @@
+Docker Intro
+============
+- Docker Version - Docker version 17.09.1-ce, build 19e2cf6
+- What is docker and container
+- Containers vs Virtual Machines
+	- 
+- Docker Architecture
+- Docker Hub
+- Docker Installation
+	- refer https://docs.docker.com/engine/installation/linux/docker-ee/oracle/
+	- sudo systemctl enable docker
+	- sudo systemctl start docker
+    - Add user account to docker group
+
+
+Create First Image
+=================
+
+ - docker version
+ - docker info - Information about the docker configuration and system info required for docker
+ - docker pull ubuntu:xenial # Pull an image from docker registery
+ - docker images # List all the locally available images
+ - docker run -i -t ubuntu:xenial /bin/bash # run the docker images
+		-i interactive
+		-t connect to terminal
+		-/bin/bash - login shell after logging into container
+ - docker ps # list running containers
+		note: If you exit the container the docker container will stopped
+ - docker ps -a # List all the containers started and stopped
+ - docker restart <container_name | image_id> # restart the stopped container
+ - docker attach <container_name | image_id> # login into the stopped container
+ - docker rm `docker ps -a -q` # delete all the stopped containers
+ - docker run -i -t -d ubuntu:xenial /bin/bash # run the container with detached mode
+	-i interactive
+	-t connect to terminal
+	-d detached mode
+	/bin/bash - login shell
+  - docker inspect <image_name or image_id> # To get the detail of images
+  - docker inspect <container_name or container_id> # get the details of the container like state, ip addresss..etc
+  - docker inspect compassionate_elion | grep IP # find the IP of running container directly using inspect command
+  - docker inspect compassionate_elion  | grep Status # Get container status
+  - docker inspect compassionate_elion  | grep Running # Get container state
+  - docker stop <container_name or container_id> # Stop a running container.
+  - docker search <image_name or image_id > # search registery for an image
+# all the changed made in the container are limited to the container but not image.
+
+Packaging a Customized Container:
+================================
+- connect to the existing container using docker attach hungry_meninsky
+- make the changes to the existing container. Lets say create test user
+- commit the changes using the below command
+   - docker commit -m "<commit_message>" -a "<commiter_name>" <existing_container_name> "<image_name:tag>"
+- docker run -it <new_image_name:tag> /bin/bash  #to start the custom image
+
+Writing a Dockerfile
+====================
+
+Sample Dockerfile
+- File should be "Dockerfile"
+- vim Dockerfile
+# This is custom ubuntu images with sshd installed
+FROM ubuntu:xenial
+MAINTAINER sam943@gmail.com
+RUN apt-get update
+RUN apt-get install -y telnet openssh-server
+
+- Save the above use the below command to build the custom docker images
+   - docker build -t="new_image_name:tag>" .
+	-t is the image and tag 
+	. is the directory where Dockerfile exist
+
+Running Container Commands with Docker
+======================================
+
+# To find the commands that were executed or getting executed on the container, use the below command
+  - docker logs <container_id or container_name>
+# To run the command directly on the container
+  - docker exec <container_id or name> <command with obsolute path>
+examples
+  - docker exec jovial_minsky /bin/cat /etc/profile # on running container
+  - docker run ubuntu:xenial /bin/echo "Hello World" #start a container and echo hello world
+  - docker run ubuntu:xenial /bin/bash -c "while true;do echo Hello;sleep 1;done" # start a container and loop over
+  - docker logs <container_id> # get stdout of the commands on the container
+
+Exposing our Container with Port Redirects:
+==========================================
+
+- docker run -d -p 8081:80 nginx:latest # exposing the local port to container port
+		- p is port exposed
+		- 8081 is the local port
+		- 80 container port
+		- 
+
