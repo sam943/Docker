@@ -35,4 +35,14 @@
  
         RUN useradd -ms /bin/bash user
         USER user
+# Dockerfile Directives: ENV
+  - To add Environment variable into docker images we add using two ways
+
+  1. Export the Environment variable into /home/user/.bashrc
+
+     Example:
+     RUN echo "JAVA_HOME=/usr/java/bin"
+
+  2. Use ENV directive to define environment variables at system level
+     ENV JAVA_HOME=/usr/java/bin
 
