@@ -45,4 +45,87 @@
 
   2. Use ENV directive to define environment variables at system level
      ENV JAVA_HOME=/usr/java/bin
+# Dockerfile Directives: CMD vs. RUN
+  
+  - RUN directive in build file indicates the commands that need to be executed during the docker image build
+  - CMD directive in build file executes the command when the container is instatiated/start up
+
+*** Ref Dockerfile practise/2_Dockerfile_Builds_and_Network_Configuration/Builds/diff_RunAndCommand
+
+# Dockerfile Directives: ENTRYPOINT
+
+  - ENTRYPOINT is also similar to command and used when the container is instatiated only.However, the difference is that with we can overwrite the CMD directive when you run start the container the interactive mode, but the same can't be the case with ENTRYPOINT directive
+
+  - docker run centos:entrypoint
+
+For Example:
+  - Lets says centos:echo image uses CMD and display the below message, when a container is initiated.
+  messgae: "This command is show that CMD directive is used when docker container instatiated"
+  - We can overwrite this in the interactive mode with below command
+
+    docker run centos:echo /bin/echo "Overwrite CMD message"
+  
+  - But if the ENTRYPOINT directive, it is not possible to change this at container initiated.
+
+  - Lets says, if you have image has ENTRYPOINT with nginx or apache start. You will not be able to start any other service besides what is mentioned in the ENTRYPOINT
+
+  - However, you can start a differet process later once the container is initatiated using docker exec
+
+****** Ref practise/2_Dockerfile_Builds_and_Network_Configuration/Builds/EntryPoint/Dockerfile
+
+# Dockerfile Directives: Expose
+  - EXPOSE directive is used for exposing the ports for container.
+
+	RUN yum install -y httpd net-tools dnsmasq telnet # Install rpms during the build
+        EXPOSE 80 # Export 80 in image
+        ENTRYPOINT apachectl "-D FOREGROUND" # start the process when the container is instatiated.
+
+  - Lets say if you have apache image build and started with container, you will not know the port unless you login container and find it out
+
+  - But using EXPOSE, before starting the image we can know the port by inspecting the image
+
+  - And also if you -P swicth along when you start the container,then a random port is picked locally and redirected to actual container port. This is very useful, when loadbalancing/hidding the port to external world
+  
+  - Below is the command to automatically pick the port and redirect it 
+    docker run -itd -P <image_name:tag>
+
+# Container Volume Management  
+  - docker run -it --name "Volume management" -v /mydate <image_id:tag> /bin/bash # This command will create mountpoint in the container
+  - /var/lib/docker/volumes # This location is the place where the above mountpoint physically located
+  - docker inspect images | grep mounts 
+	source is in /var/lib/docker/volumes
+  - You can add files to container through local filesystem
+  
+  # Mapping an Existing directory or file system to container
+  - Similarly like exposing the localport to container ports you can also expose the exsiting directory as mount points or volumes to container.
+    - docker run -it --name "Volume management" -v /localhost/MYDIR:/mydate <image_id:tag> /bin/bash
+
+# Docker Network: List and Inspect
+  - These are two utilites that we can use for network
+    - ifconfig | grep docker0 # Default docker bridge
+    - docker network ls # list all the networks for a host
+    - docker network ls --no-truck # full network ID
+    - docker network inspect <id> # id can bridge or Id
+    
+
+# Docker Network: Create and Remove
+  - Creating docker network:
+	- docker-network-create # man page for network-create and docs.docker.com
+        - docker network create --subnet 10.1.0.0/24 --gateway 10.1.0.1 mybridge01
+        - docker network ls
+  - Removing docker network: Be very careful,do not delete default networks
+	- docker network ls
+        - docker network rm <brige>
+        
+# Docker Network: Assign to Containers
+  - docker network create --subnet 10.1.0.0/16 --gateway 10.1.0.1 --ip-range=10.1.4.0/24 --driver=bridge --label=<host> <newbridge_name>
+	ip-range is sub-set of network
+        driver is brige or overlay
+  - docker network ls # should provided the details of newly created network bridge
+  - docker network inspect <newbridge_name>
+ # How to use this network ?
+    - docker run -it --name <container_name> --net <newbridge_name> <image_name:tag> /bin/bash
+    - login to container and check the ifconfig to make you get the write network
+    - docker run -it --name <container_name> --net <newbridge_name> --ip 10.1.4.100 <image_name:tag> /bin/bash # creating a container with static IP
+   
 
