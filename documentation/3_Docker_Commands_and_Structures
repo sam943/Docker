@@ -92,3 +92,14 @@ docker events --filter event=attach --filter event=die --filter event=stop
    2018-01-06T10:33:21.475541610-08:00 container create 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
    2018-01-06T10:33:21.538742742-08:00 network connect 989e7b3b49ec23afe98d3648cf28ff677c3d3fa8cb51a0d4235eeccadd961ef0 (container=4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c, name=bridge, type=bridge)
    2018-01-06T10:33:21.962134632-08:00 container start 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
+
+
+
+# Managing and Removing Base Images
+
+  - docker rmi <image_name:tags> # Remove a image
+  - docker rm <container_id> or <container_name> # Remove a container before removing an image
+  --If you have container start with base image and it is running or it is stopped and when you try to delete the base image, you may receive a conflict. 
+  -- you leave runnning or container as is and delete the base using -f/--force switch along with docker rmi command 
+	  - docker rmi -f <image_name:tag>
+  -- There is also another scenarios you may need force is that if you have multiple images with image_id but different tags. Even in such scenario if you need to delete the image with image_id,  it conflict with other images with different tags.
