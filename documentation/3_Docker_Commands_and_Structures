@@ -1,0 +1,55 @@
+#Inspect Container Processes
+
+ - If you wanted to run any command to container or check status of the process, you will login into container check the proces
+
+ - But using exec you can run the command with out logging into the container
+
+   - docker exec <running_container_name> /bin/ps aux
+   - docker exec <running_container_name> /bin/ps
+   - docker exec <running_container_name> /bin/free -m
+
+  : Note when you exec to run the command on the container, we need to use the full path of the command
+
+ - If you login into the container, run a command the container will shutdown.If you want to login to the container, but do not want the container to be stopped after the exit, you need to the exec with interactive terminal
+
+   - docker exec -i -t <running_container_name>  /bin/bash
+
+ - If you want to get the stat of container process or activity doing on the container, you can use 
+
+   - docker stats <running_container_name>. 
+
+ - Using the stats the container keeps on refreshing the activity every second and stdout the logs
+
+# Previous Container Management
+
+ - To list all the images on the host
+	- docker images
+        - docker ps -a -q | wc -l # number of docker images started and stopped
+        - docker stop <container_id> # stop a running container
+        - docker rm <container_id> # remove stopped container
+        - docker rm -f # Force stop and remove a container
+        - sudo docker rm -f <container_id> # If you don't have the privilages
+
+ - There is also anthoer way remove the container
+ 	- sudo systemctl stop docker 
+        - remove the container directory from /var/lib/docker
+        - start docker using sudo systemctl start docker
+
+# Controlling Port Exposure on Containers
+
+  # To export a port from container to localhost 
+   - docker run -itd -p 80 nginx:latest /bin/bash
+
+  # To expose port 80 and redirect port 8080 on the host to container
+   - docker run -itd -p 8080:80 nginx:latest /bin/bash
+ 
+  # To randomly pick any local port and redirect to container ports use -P
+
+   - docker run -itd -P nginx:latest /bin/bash
+
+  # To expose a port and limit only the local host and redirect local port 8081 to 80, use the IP address before port redirection
+   - docker run -itd -p 127.0.0.1:8081:80 nginx:latest /bin/bash
+
+ # To expose a port, limit to IP Address and redirect based on specific protocal tcp/udp
+   - docker run -itd -p 127.0.0.1:8081:80/tcp nginx:latest /bin/bash
+   - docker run -itd -p 127.0.0.1:8081:80/udp nginx:latest /bin/bash
