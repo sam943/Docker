@@ -113,3 +113,16 @@ docker events --filter event=attach --filter event=die --filter event=stop
 
 -- You can also save the updated container as image into docker using docker commit command 
 	- docker commit <container_name_updated> <new_image_name:tag>
+
+# Image History
+ 	- docker history <image_id> # give the latest changes happened for that image
+  	- docker history --no-trunc <image_name> # full details of the changes
+	- docker history --quiet --no-trunc <image_name> # Give only the change id of that image
+  Note: The latest change_id of the will match the latest image_id
+
+# Taking Control of Our Tags
+
+-- You can take the base images or any image and tag it with a different name and remove the base image if you need
+  	- docker tag <image_id> <name>/<image_name>:<tag>
+	- docker images
+	- docker tag <exising_new_name:tag> $(hostname)/<image_name>:<tag>  # you can tag the image for host specific 
