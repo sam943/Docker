@@ -53,3 +53,12 @@
  # To expose a port, limit to IP Address and redirect based on specific protocal tcp/udp
    - docker run -itd -p 127.0.0.1:8081:80/tcp nginx:latest /bin/bash
    - docker run -itd -p 127.0.0.1:8081:80/udp nginx:latest /bin/bash
+
+# Naming Our Containers
+
+ --> Giving a user defined name when initiating the container
+  	- docker run -it --name "<user_defined_container_name>" <image_name:tags> /bin/bash 
+ --> Rename the container after the container is initiated. Be it a running container or stopped one
+	-  docker rename <old_container_name> <new_container_name>
+ --> Rename the container name with container Id. This will not change the contianer ID, it changes only the name associated with the container ID. It is not possible to change the container ID once assigned by system
+  	- docker rename <container_id> <new_container_name>
