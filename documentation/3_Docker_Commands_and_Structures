@@ -93,8 +93,6 @@ docker events --filter event=attach --filter event=die --filter event=stop
    2018-01-06T10:33:21.538742742-08:00 network connect 989e7b3b49ec23afe98d3648cf28ff677c3d3fa8cb51a0d4235eeccadd961ef0 (container=4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c, name=bridge, type=bridge)
    2018-01-06T10:33:21.962134632-08:00 container start 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
 
-
-
 # Managing and Removing Base Images
 
   - docker rmi <image_name:tags> # Remove a image
@@ -103,3 +101,15 @@ docker events --filter event=attach --filter event=die --filter event=stop
   -- you leave runnning or container as is and delete the base using -f/--force switch along with docker rmi command 
 	  - docker rmi -f <image_name:tag>
   -- There is also another scenarios you may need force is that if you have multiple images with image_id but different tags. Even in such scenario if you need to delete the image with image_id,  it conflict with other images with different tags.
+
+# Saving and Loading Docker Images
+-- You can also save an image to local filesystem and delete the image from register or local docker repository
+-- Use the below 2 command to save the directory to local filesystem as tar or tar.gz 
+	- docker save centosi:latest > centos_latest.tar.gz
+	- docker save --output centos_latest.tar centos:latest
+-- once the above is saved you can delete the images using docker rmi from docker repo
+-- If you load the images back into docker repo run the docker load --input command
+	- docker load --input centos_latest.tar.gz
+
+-- You can also save the updated container as image into docker using docker commit command 
+	- docker commit <container_name_updated> <new_image_name:tag>
