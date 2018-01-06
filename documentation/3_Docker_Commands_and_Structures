@@ -126,3 +126,11 @@ docker events --filter event=attach --filter event=die --filter event=stop
   	- docker tag <image_id> <name>/<image_name>:<tag>
 	- docker images
 	- docker tag <exising_new_name:tag> $(hostname)/<image_name>:<tag>  # you can tag the image for host specific 
+
+# Pushing to Docker Hub
+-- You can create 1 private repo and as many as public repos in docker hub. Which is nothing but a docker registry to store images
+  - docker login # Provide the docker hub login, and it promots for docker hub password
+  - docker logout # If you want logout of the existing registry.
+  - docker tag <local_exising_iamge> <private_repo_on_docker_hub/image_name:tag> # tag with name of the private repo,image_name and tag
+  - docker login --username=username # Login with user name
+  - docker push <private_repo_on_docker_hub> # Push the image to docker hub
