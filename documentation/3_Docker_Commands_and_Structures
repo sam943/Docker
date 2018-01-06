@@ -62,3 +62,33 @@
 	-  docker rename <old_container_name> <new_container_name>
  --> Rename the container name with container Id. This will not change the contianer ID, it changes only the name associated with the container ID. It is not possible to change the container ID once assigned by system
   	- docker rename <container_id> <new_container_name>
+
+# Docker Events
+ -- Docker events basically used on the docker host to monitor the events happening with containers started, attached, died, stopped.
+ -- To monitor all the events happenning to the container on the host, you can use "docker event" command, which runs stop in foreground contineously and check for any new events
+	- docker events
+	- docker events --since '1h' # Check the events in the last 1h
+ -- Lets say you ran command on container using exec with the same 
+	- docker exec -t mynewidname /bin/bash
+    Then when you have the "docker events" running, you can capture the below events
+    2018-01-06T10:47:31.045106335-08:00 container exec_start: /bin/bash  4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
+-- For action happened on the host with respect containers will be captured into docker events and can be used for monitoring and alerting purposes
+
+-- docker events can also be used to filter specific events. For example the below filter will, only capture the events for the containers that are attached
+   - docker events --filter event=attach
+
+   Events_output looks as below
+   2018-01-06T10:32:08.260834220-08:00 container attach <Full_container_ID> (image=<image_name:tag>, maintainer=<MAINTAINER> Docker Maintainers <maintainer email@email.com>, name=<container_name>)
+
+  - docker events with multiple filters
+
+docker events --filter event=attach --filter event=die --filter event=stop
+==========================================================================
+   2018-01-06T10:34:21.185323371-08:00 container attach 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
+   2018-01-06T10:34:34.225812100-08:00 container die 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (exitCode=130, image=ubuntu:xenial, name=hopeful_poitras)
+
+ - docker events without filters
+
+   2018-01-06T10:33:21.475541610-08:00 container create 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
+   2018-01-06T10:33:21.538742742-08:00 network connect 989e7b3b49ec23afe98d3648cf28ff677c3d3fa8cb51a0d4235eeccadd961ef0 (container=4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c, name=bridge, type=bridge)
+   2018-01-06T10:33:21.962134632-08:00 container start 4bf427b88008d67b5141b826453db07d8bc3287d90c24d028eb741b1818b628c (image=ubuntu:xenial, name=hopeful_poitras)
