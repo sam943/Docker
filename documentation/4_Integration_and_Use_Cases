@@ -81,3 +81,51 @@ server {
 			bridge_stp off
 			bridge_fg 0
 
+
+#Testing Version Compatibility - Using Tomcat and Java (Prerequisites)
+#
+-- We will be testing the compatibility of our java application against both Java 7 and 8 as well as both Apache Tomcat 7 and 8, running on each version. This is a common upgrade scenario that we can now do very quickly to determine the level of effort in upgrading dependencies and third party applications
+
+-- Configure Downloads directory on your local system and expose the mounts to the contianer for prep'ng the java and tomcat on the containers
+
+-- Create a container from the centos6:latest image and configure the container with java 7 and 8 and commit the images to local repository
+
+	- docker run -it --name=jdk7 -v $(pwd)/Downloads:/root/Downloads centos:6 /bin/bash
+	- docker ps -a
+	- docker commit jdk7 centos6:java7
+	- docker run -it --name=jdk -v $(pwd)/Downloads:/root/Downloads centos:6 /bin/bash
+	- docker commit jdk8 centos6:java8
+
+Below are the commands used for install and configuring java 
+	- untar the jdk and move jdk  /opt/java/
+		mv jdk1.7.0_80/* /opt/java/
+	- alternatives --install /usr/bin/java java /opt/java/bin/java 2
+	- alternatives --config java
+	- alternatives --install /usr/bin/jar jar /opt/java/bin/jar 2
+	- alternatives --install /usr/bin/java javac /opt/java/bin/javac 2
+	- alternatives --set jar /opt/java/bin/jar
+	- alternatives --set javac /opt/java/bin/javac
+
+
+-- Create another based on the container created with java 7 and configure tomcat
+
+	- docker run -it --name=jdk7tomcat7 -v $(pwd)/Downloads:/root/Downloads -p 8180:8080 centos6:java7 /bin/bash
+	- docker ps -a
+	- docker commit jdk7tomcat7 centos:jdk7tomat7
+
+================================
+Repeat the same with jdk8tomcat8
+================================
+
+	- docker run -it --name=jdk8tomcat8 -v $(pwd)/Downloads:/root/Downloads -p 8280:8080 centos6:java8 /bin/bash
+	- docker ps -a
+	- docker commit jdk8tomcat8 centos:jdk8tomcat8
+
+Below are the command used for prep'ng the container with tomcat 7 and tomcat 8
+
+	- untar the tomcat and move to /opt/tomcat
+	- export JAVA_HOME=/opt/java
+	- export JAVE_JRE=/opt/java
+	- export CATALINA_BASE=/opt/tomcat/
+	- export CATALINA_HOME=/opt/tomcat/
+	- export CATALINA_TMPDIR=/opt/tomcat/temp
