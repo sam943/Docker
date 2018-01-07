@@ -1,0 +1,83 @@
+# Building a Web Farm for Development and Testing (Prerequisites)
+-- Setup Centos VM
+-- Download a centos6:latest base images
+-- Start the centos6:latest container
+	- yum update -y 
+	- yum install -y php httpd open-sshserver
+        - add start httpd  and sshd services in bashrc so that these services will automatically start when you start the container
+-- save this container as baseweb image for builing out the webfarm
+-- create a directory on local file system and download a web template from http://www.oswd.org
+Example:  http://static.oswd.org/designs/3682/bluefreedom3.zip
+-- Expose the local volume to container and make sure the web pages are accessible when you access container ip
+-- Checkin the code into git, install git on the baseweb container too, so that you can check it or make changes to source code from any container 
+
+-- Again docker commit baseweb images as centos6:serverv1 
+
+-- But if you start the container, the container will start all the configuration, but the local file system with web code doesn't mount. since the volumes are not exported
+
+-- so we need to expose volumn and ports when you run the container
+
+-- Lets take an real time scenario. 
+	- run two different containers with different ports exposed from localhost to container and clone the webapp code from git and expose the same to containers
+	- docker run -itd -v /webdata_cloned:/var/www/html/ -p 8081:80 --name="devweb1" centos6:serverv1
+	- docker run -itd -v /webdata_cloned:/var/www/html/ -p 8082:80 --name="devweb2"
+centos6:serverv1
+
+# Above docker command will starts 2 container and exposing the localport 8081 and 8082 to different container
+
+-- Now, Install ngnix on local system as proxy server and load balance the request to localhost to both the containers
+
+-- Once you install nginx on the host make the below the change to proxy the request and load balance the request to both the containers
+
+#####################################################
+cd /etc/nginx/sites-available
+default.conf
+upstream containerapp {
+		server 192.168.1.35:8081;
+		server 192.168.1.35:8082;
+                # Above IP is the docker/local host
+}
+
+server {
+
+	listen *:80;
+	server_name 192.168.1.35;
+	index index.html index.htm index.php;
+    
+	access_log /var/log/ngnix/localweb.log
+	error_log /var/log/nginx/localerr.log
+
+	location / {
+
+		proxy_pass http://containerapp;
+	}
+}
+
+########################################################
+
+#########################################################
+#Integrating Custom Network In Your Docker Containers   #
+#########################################################
+	- create custom network for docker
+	- These changes can be done on docker localhost.In this example we are using ubuntu
+	- build a bridge adapter
+	  - ip link add br10 type bridge  # bridge interface 
+	  - ip addr add 10.10.100.1/24 dev br10 # ip address range
+          - ip link set br10 up
+	- Now the ifconfig will show an br10 bridge adapter interface
+- Configure docker to use br10
+	docker -d -b br10 &
+- Now if you run a docker image to start the container, you should be new IP address defined above
+- However, these settings are not persistent. Once the localhost is rebooted the br10 bridge interfact is gone
+
+- There are two ways make these network setting persistent
+	1. Update the same config to /etc/rc.local at boot up
+	2. Update /etc/network and update interfaces
+		auto br10
+		iface br10 inet static
+			address 10.10.100.1
+			netmask 255.255.255.0
+			bridge_ports dummy0
+			bridge_stp off
+			bridge_fg 0
+
