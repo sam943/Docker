@@ -1,0 +1,29 @@
+NOTE: Although you should be able to run these commands on any Docker version on any Linux Distribution, for the purposes of these exercises, be sure you are running Docker v1.10+ as well as the latest CentOS or Ubuntu distribution. Be sure to have pulled the 'centos:6' and 'ubuntu:latest' images from the Docker Hub (docker pull) before starting this exercise.
+
+1. List the base images on the system. Choose a base image for Ubuntu and create a container from that image. This container should be named "basic_web" and should be interactive, attached to the current console and run the bash prompt.
+
+	- docker images # List base images
+	- docker run -it --name=basic_web ubuntu:xenial /bin/bash
+
+2. Once you are logged into the container at the prompt, install all updates. After updates are installed, install the Apache Web Server and verify that it is listening on Port 80.
+	
+	- yum update -y 
+	- yum install httpd net-tools openssh-server 
+	- netstat -an | grep 80 
+
+3. Using the root account profile file in the root home directory, add the command to start the web server whenever a bash session is started. 
+	
+	- service apache2 start >> ~/.bashrc
+
+4. Stop the container. Once stopped, commit the container as a base image called "ubuntu:baseweb".
+
+	- docker commit basic_web ubuntu:baseweb
+
+5. Create a container based on the new "ubuntu:baseweb" image called "test_container". It should run interactively, attached to the console and starting a bash prompt. Once logged into the container, verify that the Apache service is running and port 80 is listening. Exit the container
+	
+	- docker run -it --name=test_container ubuntu:baseweb /bin/bash
+	- ps aux | grep httpd 
+	- netstat | grep 80
+	- access the host on port 80 through web browser with container IP
+	- exit
+
